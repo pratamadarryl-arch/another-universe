@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A little universe made for a tired friend. A peaceful corner of the internet, just for you." />
+  <title>A Little Universe — Just for You</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════
+       LOADING SCREEN
+  ════════════════════════════════════════════ -->
+  <div id="loading-screen" role="status" aria-label="Loading">
+    <canvas id="loading-stars"></canvas>
+    <div class="loading-content">
+      <div class="loading-moon">🌙</div>
+      <p class="loading-text">Finding your way through the stars...</p>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       MUSIC OVERLAY (autoplay fallback)
+  ════════════════════════════════════════════ -->
+  <div id="music-overlay" class="hidden" role="dialog" aria-label="Music prompt">
+    <div class="music-overlay-content">
+      <div class="music-overlay-icon">♪</div>
+      <p class="music-overlay-title">There's a little song waiting for you.</p>
+      <p class="music-overlay-sub">Laufey · Letter To My 13 Year Old Self</p>
+      <button id="play-music-btn" class="btn-primary" aria-label="Play the music">PLAY THE MUSIC</button>
+      <button id="skip-music-btn" class="btn-ghost" aria-label="Continue without music">Maybe later</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       AUDIO ELEMENT
+  ════════════════════════════════════════════ -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="assets/music/Laufey%20-%20Letter%20To%20My%2013%20Year%20Old%20Self%20(Official%20Lyric%20Video%20With%20Chords)%20%5B80Gf35I7n1w%5D.mp3" type="audio/mpeg" />
+  </audio>
+
+  <!-- ════════════════════════════════════════════
+       MUSIC CONTROL (bottom right)
+  ════════════════════════════════════════════ -->
+  <div id="music-control" class="hidden" role="complementary" aria-label="Music player">
+    <div class="music-info">
+      <div class="music-bars" id="music-bars" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="music-meta">
+        <span class="music-title">her little song</span>
+        <span class="music-artist">Laufey</span>
+      </div>
+    </div>
+    <div class="music-progress-wrap">
+      <input type="range" id="music-progress" class="music-progress" min="0" max="100" value="0" aria-label="Song progress" />
+    </div>
+    <div class="music-buttons">
+      <button id="music-toggle" aria-label="Play or pause music" title="Play / Pause">
+        <svg id="icon-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <button id="music-mute" aria-label="Mute or unmute music" title="Mute / Unmute">
+        <svg id="icon-vol" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <svg id="icon-mute" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="hidden"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+      </button>
+      <input type="range" id="music-volume" class="volume-slider" min="0" max="1" step="0.05" value="0.22" aria-label="Volume" />
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════ -->
+  <main>
+
+    <!-- ── SECTION 01: THE NIGHT SKY ─────────────── -->
+    <section id="hero" class="section-hero" aria-label="The night sky">
+      <canvas id="star-canvas" aria-hidden="true"></canvas>
+
+      <!-- Moon (Easter egg trigger) -->
+      <div id="moon" class="moon" role="button" tabindex="0" aria-label="Moon - click multiple times for a surprise" title="Click the moon...">
+        <div class="moon-glow"></div>
+        <div class="moon-surface"></div>
+      </div>
+
+      <!-- Shooting stars -->
+      <div class="shooting-stars" aria-hidden="true">
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+      </div>
+
+      <!-- Hero text -->
+      <div class="hero-content">
+        <p class="hero-line reveal-1" aria-label="Hey, you.">Hey, you.</p>
+        <p class="hero-line hero-line--sub reveal-2">You've been doing a lot lately.</p>
+        <p class="hero-line hero-line--sub reveal-3">So I made you a little place to rest.</p>
+        <button id="enter-btn" class="btn-enter reveal-4" aria-label="Enter your little universe">
+          <span>ENTER YOUR LITTLE UNIVERSE</span>
+          <div class="btn-enter-glow"></div>
+        </button>
+        <p class="hero-whisper reveal-5">Take a breath. You don't have to rush here.</p>
+      </div>
+    </section>
+
+    <!-- ── SECTION 02: YOU'VE BEEN DOING A LOT ────── -->
+    <section id="doing-a-lot" class="section-doing" aria-label="You've been doing a lot">
+      <div class="section-inner">
+        <h2 class="section-heading scroll-reveal">You've been doing a lot.</h2>
+        <div class="doing-text">
+          <p class="scroll-reveal">Classes, responsibilities, deadlines, people, plans...</p>
+          <p class="scroll-reveal">You keep showing up for everything.</p>
+          <p class="scroll-reveal">But sometimes, I wonder if you remember<br>to show up for yourself too.</p>
+          <p class="scroll-reveal">You don't always have to be productive.</p>
+          <p class="scroll-reveal">You don't always have to be strong.</p>
+          <p class="scroll-reveal">And you don't have to have everything figured out.</p>
+          <p class="doing-highlight scroll-reveal">You're allowed to rest.</p>
+        </div>
+
+        <!-- Breathing circle -->
+        <div class="breath-preview scroll-reveal" aria-hidden="true">
+          <div class="breath-circle-outer">
+            <div class="breath-circle-inner"></div>
+          </div>
+        </div>
+
+        <div class="doing-close scroll-reveal">
+          <p>So for a little while...</p>
+          <p class="doing-bold">do nothing.</p>
+          <p>Just breathe.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 03: CONSTELLATION OF REMINDERS ─── -->
+    <section id="constellation" class="section-constellation" aria-label="Constellation of reminders">
+      <div class="section-inner">
+        <h2 class="section-heading scroll-reveal">A few things I hope you remember.</h2>
+        <p class="section-sub scroll-reveal">Click each star to read.</p>
+        <div class="constellation-wrap">
+          <canvas id="constellation-canvas" aria-hidden="true"></canvas>
+          <div id="constellation-stars" class="constellation-stars">
+            <!-- Stars positioned via JS -->
+          </div>
+        </div>
+        <!-- Message popup -->
+        <div id="star-message" class="star-message hidden" role="dialog" aria-live="polite" aria-label="Star reminder message">
+          <div class="star-message-inner">
+            <p id="star-message-text"></p>
+            <button id="star-message-close" aria-label="Close reminder">✕</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 04: HER LITTLE GALAXY ─────────── -->
+    <section id="gallery" class="section-gallery" aria-label="Little moments gallery">
+      <div class="section-inner">
+        <h2 class="section-heading scroll-reveal">Little moments of you.</h2>
+        <p class="section-sub scroll-reveal">Because sometimes, we forget how beautiful ordinary moments can be.</p>
+
+        <div class="polaroid-container scroll-reveal">
+          <div class="polaroid-item polaroid-1" data-index="0" role="button" tabindex="0" aria-label="Photo 1 - Just you being you">
+            <div class="polaroid-img-wrap">
+              <img src="assets/photos/WhatsApp%20Image%202026-09-08%20at%2023.40.16%20(1).jpeg" alt="Just you being you" loading="lazy" />
+              <div class="polaroid-glow"></div>
+            </div>
+            <p class="polaroid-caption">Just you being you.</p>
+          </div>
+          <div class="polaroid-item polaroid-2" data-index="1" role="button" tabindex="0" aria-label="Photo 2 - One of those little moments worth remembering">
+            <div class="polaroid-img-wrap">
+              <img src="assets/photos/WhatsApp%20Image%202026-09-08%20at%2023.40.16%20(2).jpeg" alt="One of those little moments worth remembering" loading="lazy" />
+              <div class="polaroid-glow"></div>
+            </div>
+            <p class="polaroid-caption">One of those little moments worth remembering.</p>
+          </div>
+          <div class="polaroid-item polaroid-3" data-index="2" role="button" tabindex="0" aria-label="Photo 3 - Even ordinary days look a little brighter">
+            <div class="polaroid-img-wrap">
+              <img src="assets/photos/WhatsApp%20Image%202026-09-08%20at%2023.40.16.jpeg" alt="Even ordinary days look a little brighter" loading="lazy" />
+              <div class="polaroid-glow"></div>
+            </div>
+            <p class="polaroid-caption">Even ordinary days look a little brighter.</p>
+          </div>
+          <div class="polaroid-item polaroid-4" data-index="3" role="button" tabindex="0" aria-label="Photo 4 - A reminder that you've come this far">
+            <div class="polaroid-img-wrap">
+              <img src="assets/photos/WhatsApp%20Image%202026-09-08%20at%2023.40.17%20(1).jpeg" alt="A reminder that you've come this far" loading="lazy" />
+              <div class="polaroid-glow"></div>
+            </div>
+            <p class="polaroid-caption">A reminder that you've come this far.</p>
+          </div>
+          <div class="polaroid-item polaroid-5" data-index="4" role="button" tabindex="0" aria-label="Photo 5 - Keep this version of you">
+            <div class="polaroid-img-wrap">
+              <img src="assets/photos/WhatsApp%20Image%202026-09-08%20at%2023.40.17.jpeg" alt="Keep this version of you" loading="lazy" />
+              <div class="polaroid-glow"></div>
+            </div>
+            <p class="polaroid-caption">Keep this version of you.</p>
+          </div>
+          <div class="polaroid-item polaroid-6" data-index="5" role="button" tabindex="0" aria-label="Photo 6 - Still shining, even on tired days">
+            <div class="polaroid-img-wrap">
+              <img src="assets/photos/WhatsApp%20Image%202026-09-08%20at%2023.40.19.jpeg" alt="Still shining, even on tired days" loading="lazy" />
+              <div class="polaroid-glow"></div>
+            </div>
+            <p class="polaroid-caption">Still shining, even on tired days.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true" aria-label="Photo lightbox">
+      <div class="lightbox-overlay" id="lightbox-overlay"></div>
+      <div class="lightbox-content">
+        <button id="lightbox-close" class="lightbox-btn lightbox-close" aria-label="Close photo">✕</button>
+        <button id="lightbox-prev" class="lightbox-btn lightbox-prev" aria-label="Previous photo">‹</button>
+        <div class="lightbox-img-wrap">
+          <img id="lightbox-img" src="" alt="" />
+          <p id="lightbox-caption" class="lightbox-caption"></p>
+        </div>
+        <button id="lightbox-next" class="lightbox-btn lightbox-next" aria-label="Next photo">›</button>
+      </div>
+    </div>
+
+    <!-- ── SECTION 05: TWO LITTLE MEMORIES ─────── -->
+    <section id="videos" class="section-videos" aria-label="Little video memories">
+      <div class="section-inner">
+        <h2 class="section-heading scroll-reveal">Two little pieces of you.</h2>
+        <p class="section-sub scroll-reveal">Some moments are too nice to leave inside a camera roll.</p>
+
+        <div class="videos-grid">
+          <div class="video-item scroll-reveal">
+            <div class="video-wrap">
+              <video
+                id="video-1"
+                src="assets/videos/WhatsApp%20Video%202026-09-08%20at%2023.40.10.mp4"
+                muted
+                controls
+                playsinline
+                preload="metadata"
+                aria-label="Little memory number 1"
+              ></video>
+            </div>
+            <div class="video-caption">
+              <span class="video-num">Little moment #01</span>
+              <p>Just a little memory worth keeping.</p>
+            </div>
+          </div>
+          <div class="video-item scroll-reveal">
+            <div class="video-wrap">
+              <video
+                id="video-2"
+                src="assets/videos/WhatsApp%20Video%202026-09-08%20at%2023.40.16.mp4"
+                muted
+                controls
+                playsinline
+                preload="metadata"
+                aria-label="Little memory number 2"
+              ></video>
+            </div>
+            <div class="video-caption">
+              <span class="video-num">Little moment #02</span>
+              <p>Another tiny piece of a beautiful day.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 06: HOW ARE YOU FEELING TONIGHT? ── -->
+    <section id="mood" class="section-mood" aria-label="How are you feeling tonight">
+      <div class="section-inner">
+        <h2 class="section-heading scroll-reveal">How are you feeling tonight?</h2>
+        <p class="section-sub scroll-reveal">You can be honest. No one is judging.</p>
+
+        <div class="planets-container scroll-reveal" role="group" aria-label="Mood selection planets">
+          <button class="planet-btn" data-mood="tired" aria-label="Tired">
+            <div class="planet planet-tired"></div>
+            <span>Tired</span>
+          </button>
+          <button class="planet-btn" data-mood="overwhelmed" aria-label="Overwhelmed">
+            <div class="planet planet-overwhelmed"></div>
+            <span>Overwhelmed</span>
+          </button>
+          <button class="planet-btn" data-mood="sad" aria-label="Sad">
+            <div class="planet planet-sad"></div>
+            <span>Sad</span>
+          </button>
+          <button class="planet-btn" data-mood="quiet" aria-label="Need some quiet">
+            <div class="planet planet-quiet"></div>
+            <span>Need some quiet</span>
+          </button>
+          <button class="planet-btn" data-mood="okay" aria-label="Actually okay">
+            <div class="planet planet-okay"></div>
+            <span>Actually okay</span>
+          </button>
+        </div>
+
+        <div id="mood-response" class="mood-response hidden" aria-live="polite">
+          <div class="mood-response-inner">
+            <div id="mood-text"></div>
+            <button id="random-reminder-btn" class="btn-secondary" aria-label="Give me another reminder">Give me another reminder ✦</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 07: RECHARGE STATION ──────────── -->
+    <section id="recharge" class="section-recharge" aria-label="Your recharge station">
+      <div class="section-inner">
+        <h2 class="section-heading scroll-reveal">Your recharge station.</h2>
+
+        <!-- 01 Breathing -->
+        <div class="recharge-block scroll-reveal">
+          <div class="recharge-num">01</div>
+          <h3 class="recharge-title">Breathing</h3>
+          <p class="recharge-sub">Take a breath.</p>
+          <div class="breath-container" aria-label="Breathing exercise">
+            <div class="breath-ring breath-ring-3" aria-hidden="true"></div>
+            <div class="breath-ring breath-ring-2" aria-hidden="true"></div>
+            <div class="breath-ring breath-ring-1" aria-hidden="true"></div>
+            <div class="breath-orb" aria-hidden="true"></div>
+            <p id="breath-label" class="breath-label" aria-live="polite">breathe in</p>
+          </div>
+          <div class="breath-controls">
+            <button id="breath-start" class="btn-secondary" aria-label="Start breathing exercise">Start breathing</button>
+            <button id="breath-pause" class="btn-ghost hidden" aria-label="Pause breathing exercise">Pause</button>
+          </div>
+        </div>
+
+        <!-- 02 Music -->
+        <div class="recharge-block scroll-reveal">
+          <div class="recharge-num">02</div>
+          <h3 class="recharge-title">Music</h3>
+          <p class="recharge-sub">Something peaceful.</p>
+          <div class="music-player-card">
+            <div class="player-art">
+              <div class="player-art-inner">
+                <div class="player-vinyl" id="player-vinyl" aria-hidden="true"></div>
+                <div class="player-moon" aria-hidden="true">🌙</div>
+              </div>
+            </div>
+            <div class="player-info">
+              <p class="player-song">her little song</p>
+              <p class="player-artist">Laufey — Letter To My 13 Year Old Self</p>
+              <div class="player-controls">
+                <button id="player-toggle" class="player-btn" aria-label="Play or pause song">
+                  <svg id="player-icon-play" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  <svg id="player-icon-pause" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" class="hidden"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+              </div>
+              <div class="player-progress-wrap">
+                <input type="range" id="player-progress" class="player-progress" min="0" max="100" value="0" aria-label="Song progress" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 Star Gazing -->
+        <div class="recharge-block scroll-reveal">
+          <div class="recharge-num">03</div>
+          <h3 class="recharge-title">Star Gazing</h3>
+          <p class="recharge-sub">Stay for the stars.</p>
+          <div class="stargazing-wrap">
+            <canvas id="stargazing-canvas" aria-label="Interactive star field - move your mouse to make stars glow"></canvas>
+            <p class="stargazing-hint" aria-hidden="true">Move your cursor · Touch to explore</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── SECTION 08: A LITTLE LETTER ───────────── -->
+    <section id="letter" class="section-letter" aria-label="A little letter for you">
+      <canvas id="letter-stars" aria-hidden="true"></canvas>
+      <div class="letter-moon" aria-hidden="true"></div>
+
+      <div class="letter-content">
+        <h2 class="letter-heading scroll-reveal">One last thing...</h2>
+
+        <div class="letter-body">
+          <p class="letter-p scroll-reveal">For you,</p>
+          <p class="letter-p scroll-reveal">I know I can't make your tiredness disappear.</p>
+          <p class="letter-p scroll-reveal">I can't take away every deadline, every responsibility, or every difficult day.</p>
+          <p class="letter-p scroll-reveal">But I hope you remember that you don't always have to carry everything alone.</p>
+          <p class="letter-p scroll-reveal">You're allowed to pause.</p>
+          <p class="letter-p scroll-reveal">You're allowed to rest.</p>
+          <p class="letter-p scroll-reveal">You're allowed to have days where you do absolutely nothing.</p>
+          <p class="letter-p scroll-reveal">And if the world ever gets a little too loud...</p>
+          <p class="letter-p letter-p--italic scroll-reveal">come back here.</p>
+          <p class="letter-p scroll-reveal">The stars will still be here.</p>
+          <p class="letter-p scroll-reveal">And this little corner of the universe will always be a place where you can breathe.</p>
+          <p class="letter-p scroll-reveal">Take care of yourself, okay?</p>
+
+          <p class="letter-highlight scroll-reveal">You deserve a little rest too.</p>
+
+          <p class="letter-signature scroll-reveal">— from a friend who is quietly rooting for you.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 09: FOOTER ─────────────────────── -->
+    <footer id="footer" class="section-footer" role="contentinfo">
+      <div class="footer-stars" aria-hidden="true"></div>
+      <div class="footer-content">
+        <p class="footer-end">End of the universe.</p>
+        <p class="footer-return">But you can always come back.</p>
+        <div class="footer-moon" aria-hidden="true">🌙</div>
+        <p class="footer-made">Made with care, just for you.</p>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ════════════════════════════════════════════
+       EASTER EGG MODAL
+  ════════════════════════════════════════════ -->
+  <div id="easter-egg" class="easter-egg hidden" role="dialog" aria-modal="true" aria-label="Secret message">
+    <div class="easter-egg-bg" aria-hidden="true"></div>
+    <div class="easter-egg-content">
+      <div class="easter-egg-stars" aria-hidden="true"></div>
+      <p class="easter-title">You found the little secret.</p>
+      <div class="easter-divider" aria-hidden="true">✦ ✦ ✦</div>
+      <p class="easter-sub">Since you made it this far...</p>
+      <p class="easter-sub">Here's one more reminder:</p>
+      <p class="easter-message">"You are doing better than you think."</p>
+      <p class="easter-message-sub">Keep going.</p>
+      <p class="easter-message-sub">Slowly is still forward.</p>
+      <button id="easter-close" class="btn-primary" aria-label="Close the secret">Close the secret</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
