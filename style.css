@@ -4,6 +4,8 @@
 
 /* ── CSS CUSTOM PROPERTIES ──────────────────────────── */
 :root {
+  color-scheme: dark;
+
   --c-void:        #030714;
   --c-deep:        #060d24;
   --c-navy:        #0a1333;
@@ -31,6 +33,15 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  /* Prevent browser forced-colors / auto-dark from overriding our gradients */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent Android Chrome Auto Dark Mode from inverting gradients */
+@media screen {
+  :root {
+    background-color: #030714;
+  }
 }
 
 html {
@@ -473,11 +484,11 @@ input[type=range]:hover::-webkit-slider-thumb {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 35%, #fef9e4 0%, #fde882 35%, #e8c44a 70%, #b8920a 100%);
+  background: radial-gradient(circle at 38% 35%, #fef9e4 0%, #fde882 35%, #e8c44a 70%, #b8920a 100%) !important;
   box-shadow:
     0 0 40px rgba(254, 243, 204, 0.35),
     0 0 80px rgba(254, 243, 204, 0.15),
-    inset -12% -12% 0 rgba(0,0,0,0.15);
+    inset -10px -10px 20px rgba(0,0,0,0.2);
 }
 
 .moon::before {
@@ -1068,38 +1079,43 @@ input[type=range]:hover::-webkit-slider-thumb {
   box-shadow: 0 8px 30px rgba(0,0,0,0.5);
   transition: box-shadow 0.3s;
   animation: planetFloat 4s ease-in-out infinite;
+  /* Force hardware rendering — prevents mobile browser from reinterpreting gradients */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
-.planet-btn:hover .planet {
+.planet-btn:hover .planet,
+.planet-btn:active .planet {
   box-shadow: 0 12px 50px rgba(0,0,0,0.7), 0 0 30px var(--planet-glow, rgba(143,168,232,0.4));
 }
 
 .planet-tired {
-  background: radial-gradient(circle at 35% 35%, #7987a8, #3a4468, #1e2540);
+  background: radial-gradient(circle at 35% 35%, #7987a8 0%, #3a4468 55%, #1e2540 100%) !important;
   --planet-glow: rgba(121, 135, 168, 0.5);
   animation-delay: 0s;
 }
 
 .planet-overwhelmed {
-  background: radial-gradient(circle at 35% 35%, #9b7ab8, #6a4890, #3d2860);
+  background: radial-gradient(circle at 35% 35%, #9b7ab8 0%, #6a4890 55%, #3d2860 100%) !important;
   --planet-glow: rgba(155, 122, 184, 0.5);
   animation-delay: 0.5s;
 }
 
 .planet-sad {
-  background: radial-gradient(circle at 35% 35%, #7aaab8, #487890, #284860);
+  background: radial-gradient(circle at 35% 35%, #7aaab8 0%, #487890 55%, #284860 100%) !important;
   --planet-glow: rgba(122, 170, 184, 0.5);
   animation-delay: 1s;
 }
 
 .planet-quiet {
-  background: radial-gradient(circle at 35% 35%, #8090c8, #5060a0, #2a3070);
+  background: radial-gradient(circle at 35% 35%, #8090c8 0%, #5060a0 55%, #2a3070 100%) !important;
   --planet-glow: rgba(128, 144, 200, 0.5);
   animation-delay: 1.5s;
 }
 
 .planet-okay {
-  background: radial-gradient(circle at 35% 35%, #90b0a0, #607870, #304040);
+  background: radial-gradient(circle at 35% 35%, #90b0a0 0%, #607870 55%, #304040 100%) !important;
   --planet-glow: rgba(144, 176, 160, 0.5);
   animation-delay: 2s;
 }
